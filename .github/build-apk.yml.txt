@@ -1,0 +1,60 @@
+name: APK Derle
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Depoyu indir
+        uses: actions/checkout@v4
+
+      - name: Node.js kur
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Java kur
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Android SDK kur
+        uses: android-actions/setup-android@v3
+
+      - name: NPM bagimliliklarini yukle
+        run: npm install
+
+      - name: Android platformunu ekle
+        run: npx cap add android
+
+      - name: Uygulama ikonunu olustur
+        run: npx @capacitor/assets generate --android --iconBackgroundColor '#0f2745' --iconBackgroundColorDark '#0f2745'
+
+      - name: Unity Ads koprusunu (MainActivity) uygula
+        run: |
+          cp patches/MainActivity.java android/app/src/main/java/com/yapayzekapolat1/bankakur/MainActivity.java
+
+      - name: Unity Ads bagimliligini build.gradle'a ekle
+        run: |
+          sed -i "/dependencies {/a\\    implementation 'com.unity3d.ads:unity-ads:4.+'" android/app/build.gradle
+
+      - name: Web dosyalarini Android projesine kopyala
+        run: npx cap sync android
+
+      - name: Gradle wrapper izinlerini ayarla
+        run: chmod +x android/gradlew
+
+      - name: Debug APK derle
+        working-directory: android
+        run: ./gradlew assembleDebug --stacktrace
+
+      - name: APK'yi Actions ciktisi olarak yukle
+        uses: actions/upload-artifact@v4
+        with:
+          name: ioz-bank-tycoon-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
