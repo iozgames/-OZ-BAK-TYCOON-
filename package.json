@@ -1,0 +1,17 @@
+{
+  "name": "ioz-bank-tycoon",
+  "version": "1.0.0",
+  "private": true,
+  "description": "iOZ Bank Tycoon - Capacitor Android sarmalayicisi",
+  "scripts": {
+    "build": "echo 'Statik HTML oyunu, ayrica bir web build adimi gerekmiyor.'"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/core": "^6.1.2"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^6.1.2"
+  }
+}
