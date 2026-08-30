@@ -23,7 +23,7 @@
   #topBar {
     position:absolute; top:calc(env(safe-area-inset-top,0px) + 16px); left:16px;
     max-width:calc(100% - 116px);
-    display:flex; align-items:center; gap:8px; z-index:10;
+    display:flex; flex-direction:column; align-items:flex-start; gap:8px; z-index:10;
   }
   #balance {
     position:relative; min-width:0; flex-shrink:0;
@@ -43,13 +43,22 @@
   }
   #resetBtn:active { background:#fbdfdf; }
   #watchAdBtn {
-    display:none; align-items:center; gap:6px; min-width:0; flex-shrink:1;
+    display:none; align-items:center; gap:6px; min-width:0; max-width:180px;
     background:linear-gradient(135deg,#fff8e6,#fdf0d0); border:1px solid #f0d999;
     border-radius:14px; padding:8px 12px; box-shadow:0 2px 10px rgba(180,140,20,0.12);
     transition:opacity .15s ease;
   }
   #watchAdBtn span { font-size:13px; font-weight:700; color:#8a6415; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
   #watchAdBtn:active { transform:scale(0.97); }
+
+  #watchAdStaffBtn {
+    display:none; align-items:center; gap:6px; min-width:0; max-width:180px;
+    background:linear-gradient(135deg,#e9f9ee,#d9f2e2); border:1px solid #a8e0bb;
+    border-radius:14px; padding:8px 12px; box-shadow:0 2px 10px rgba(20,150,80,0.12);
+    transition:opacity .15s ease;
+  }
+  #watchAdStaffBtn span { font-size:13px; font-weight:700; color:#1f7a45; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
+  #watchAdStaffBtn:active { transform:scale(0.97); }
 
   /* Gelir kazanıldığında bakiyenin yanında beliren küçük animasyon */
   @keyframes floatUp {
@@ -429,10 +438,6 @@
       <svg width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#1a56b0" stroke="#dbeafe" stroke-width="1.5"/><text x="12" y="16.5" font-size="13" font-weight="700" fill="#fff" text-anchor="middle" font-family="Arial">$</text></svg>
       <span id="balanceText">$20.000</span>
     </div>
-    <div id="watchAdBtn" onclick="watchAdForCash()">
-      <svg width="16" height="16" viewBox="0 0 24 24"><rect x="2.5" y="5.5" width="14" height="13" rx="2.5" fill="none" stroke="#b8860b" stroke-width="1.7"/><polygon points="9.5,9.5 9.5,15 14,12.25" fill="#b8860b"/><path d="M18 9.5l4-2.7v10.4l-4-2.7" fill="none" stroke="#b8860b" stroke-width="1.7" stroke-linejoin="round"/></svg>
-      <span>$10.000 Kazan</span>
-    </div>
   </div>
 
   <div id="topRightBtnGroup">
@@ -512,6 +517,14 @@
       <svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 2l2.6 5.5 6 .7-4.4 4.1 1.2 5.9L12 15.3l-5.4 2.9 1.2-5.9L3.4 8.2l6-.7z" fill="none" stroke="#b8860b" stroke-width="1.6" stroke-linejoin="round"/></svg>
       <span id="prestigeBadge">x1.0</span>
       <span class="actionLabel">Prestij</span>
+    </div>
+    <div id="watchAdBtn" onclick="watchAdForCash()">
+      <svg width="16" height="16" viewBox="0 0 24 24"><rect x="2.5" y="5.5" width="14" height="13" rx="2.5" fill="none" stroke="#b8860b" stroke-width="1.7"/><polygon points="9.5,9.5 9.5,15 14,12.25" fill="#b8860b"/><path d="M18 9.5l4-2.7v10.4l-4-2.7" fill="none" stroke="#b8860b" stroke-width="1.7" stroke-linejoin="round"/></svg>
+      <span>$10.000 Kazan</span>
+    </div>
+    <div id="watchAdStaffBtn" onclick="watchAdForStaff()">
+      <svg width="16" height="16" viewBox="0 0 24 24"><rect x="2.5" y="5.5" width="14" height="13" rx="2.5" fill="none" stroke="#1f7a45" stroke-width="1.7"/><polygon points="9.5,9.5 9.5,15 14,12.25" fill="#1f7a45"/><circle cx="19" cy="6" r="4.2" fill="#1f7a45"/><path d="M19 4.2v3.6M17.2 6h3.6" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/></svg>
+      <span>2 Ücretsiz Personel</span>
     </div>
   </div>
 
@@ -908,7 +921,7 @@
 
   // Tüm tıklanabilir öğelerde ortak tuş sesi
   document.addEventListener('click', function(e){
-    const el = e.target.closest('button, .btn, .actionBtn, .country, .panelCloseBtn, #resetBtn, #settingsBtn, #watchAdBtn, #homeBtn');
+    const el = e.target.closest('button, .btn, .actionBtn, .country, .panelCloseBtn, #resetBtn, #settingsBtn, #watchAdBtn, #watchAdStaffBtn, #homeBtn');
     if (el) SFX.click();
   }, true);
 
@@ -1097,8 +1110,12 @@
   let darkMode = false;
   let adCashWatchCount = 0;
   let lastAdCashResetDate = new Date().toDateString();
-  const MAX_AD_CASH_WATCHES = 3;
+  const MAX_AD_CASH_WATCHES = 10;
   const AD_CASH_REWARD = 10000;
+  // Ücretsiz personel reklamı: günlük değil, oyun genelinde toplam 2 kez izlenebilir
+  let freeStaffAdWatchCount = 0;
+  const MAX_FREE_STAFF_AD_WATCHES = 5;
+  const FREE_STAFF_AD_REWARD = 2;
   function maxStaff(){ return branchCount * 20; }
 
   // Reklam karşılığı nakit hakkı gerçek takvim gününe göre yenilenir (in-game gün 3 saniyede
@@ -1417,6 +1434,42 @@
     });
   }
 
+  function updateWatchAdStaffBtn(){
+    const wrap = document.getElementById('watchAdStaffBtn');
+    if (!wrap) return;
+    const onDashboard = document.getElementById('screenDashboard').classList.contains('active');
+    if (!onDashboard || freeStaffAdWatchCount >= MAX_FREE_STAFF_AD_WATCHES) {
+      wrap.style.display = 'none';
+    } else {
+      wrap.style.display = 'flex';
+      const label = wrap.querySelector('span');
+      if (label) label.textContent = FREE_STAFF_AD_REWARD + ' Ücretsiz Personel (' + (MAX_FREE_STAFF_AD_WATCHES - freeStaffAdWatchCount) + ')';
+    }
+  }
+
+  function watchAdForStaff(){
+    if (freeStaffAdWatchCount >= MAX_FREE_STAFF_AD_WATCHES) return;
+    const wrap = document.getElementById('watchAdStaffBtn');
+    if (!wrap) return;
+    wrap.style.opacity = '0.6';
+    wrap.style.pointerEvents = 'none';
+    requestRewardedAd(function(){
+      const room = Math.max(0, maxStaff() - staffCount);
+      const gained = Math.min(FREE_STAFF_AD_REWARD, room);
+      staffCount += gained;
+      freeStaffAdWatchCount++;
+      if (gained > 0) SFX.coin();
+      updateStaffUI();
+      updateWatchAdStaffBtn();
+      saveGame();
+      wrap.style.opacity = '1';
+      wrap.style.pointerEvents = '';
+    }, function(){
+      wrap.style.opacity = '1';
+      wrap.style.pointerEvents = '';
+    });
+  }
+
   function watchAdForNextYear(){
     const btn = document.getElementById('yearEndContinueBtn');
     if (btn) { btn.disabled = true; btn.textContent = 'Reklam yükleniyor...'; }
@@ -1508,6 +1561,7 @@
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
     updateWatchAdBtn();
+    updateWatchAdStaffBtn();
   }
 
   // Performans notu: eskiden her personel alımında ayrı bir setInterval açılıyordu
@@ -1848,7 +1902,7 @@
         totalIncome, atmCount, branchCount, mobileLevel, stage,
         gameDay, gameWeek, gameMonth, gameYear,
         yearIncome, yearStaffHired, yearAtmBought, yearBranchesBought, yearMobileUpgrades,
-        darkMode, adCashWatchCount, lastAdCashResetDate,
+        darkMode, adCashWatchCount, lastAdCashResetDate, freeStaffAdWatchCount,
         staffUpgradeLevel, atmUpgradeLevel, mobileUpgradeLevel, unlockedAchievements,
         prestigePoints, prestigeCount, incomeSincePrestige,
         soundOn: SFX.isSoundOn(), musicOn: SFX.isMusicOn()
@@ -1891,6 +1945,7 @@
     darkMode = data.darkMode ?? false;
     adCashWatchCount = data.adCashWatchCount ?? 0;
     lastAdCashResetDate = data.lastAdCashResetDate ?? new Date().toDateString();
+    freeStaffAdWatchCount = data.freeStaffAdWatchCount ?? 0;
     staffUpgradeLevel = data.staffUpgradeLevel ?? 0;
     atmUpgradeLevel = data.atmUpgradeLevel ?? 0;
     mobileUpgradeLevel = data.mobileUpgradeLevel ?? 0;
@@ -1928,6 +1983,7 @@
       document.getElementById('profitHeroValue').textContent = fmt(totalIncome);
       document.getElementById('statBranches').textContent = branchCount;
       updateStaffUI();
+      updateWatchAdStaffBtn();
       updateAtmUI();
       updateBranchUI();
       updateMobileUI();
