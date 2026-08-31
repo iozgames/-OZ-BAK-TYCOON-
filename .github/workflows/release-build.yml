@@ -43,6 +43,9 @@ jobs:
 
       - name: Web dosyalarini Android projesine kopyala
         run: npx cap sync android
+      - name: Config ayarlarini uygula
+        run: npx cap update android
+  
 
       - name: Keystore dosyasini geri olustur
         run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/release.keystore
