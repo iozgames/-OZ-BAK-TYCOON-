@@ -1,11 +1,10 @@
 {
   "appId": "com.yapayzekapolat1.bankakur",
-  "appName": "iOZ Bank Tycoon",
+  "appName": "IOZ Bank Tycoon",
   "webDir": "www",
-  "server": {
-    "androidScheme": "https"
-  },
   "android": {
-    "allowMixedContent": false
+    "versionCode": 2,
+    "versionName": "1.5.0"
   }
 }
+
